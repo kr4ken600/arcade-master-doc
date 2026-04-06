@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "contact": {
       "name": "Soporte Arcade Master",
-      "email": "soporte@arcademaster.api"
+      "email": "respaldo.kr4ken@gmail.com"
     }
   },
   "servers": [
@@ -16,14 +16,38 @@
     }
   ],
   "tags": [
-    { "name": "App", "description": "Rutas de estado de la aplicación" },
-    { "name": "Auth", "description": "Autenticación y tokens" },
-    { "name": "Users", "description": "Gestión de usuarios y administradores" },
-    { "name": "Arcades", "description": "Gestión de salones arcade (negocios)" },
-    { "name": "Games", "description": "Catálogo de videojuegos" },
-    { "name": "Sessions", "description": "Registro de partidas, scores y uso de hardware" },
-    { "name": "Invitations", "description": "Sistema de invitaciones" },
-    { "name": "Webhooks", "description": "Integraciones a eventos externos" }
+    {
+      "name": "App",
+      "description": "Rutas de estado de la aplicación"
+    },
+    {
+      "name": "Auth",
+      "description": "Autenticación y tokens"
+    },
+    {
+      "name": "Users",
+      "description": "Gestión de usuarios y administradores"
+    },
+    {
+      "name": "Arcades",
+      "description": "Gestión de salones arcade (negocios)"
+    },
+    {
+      "name": "Games",
+      "description": "Catálogo de videojuegos"
+    },
+    {
+      "name": "Sessions",
+      "description": "Registro de partidas, scores y uso de hardware"
+    },
+    {
+      "name": "Invitations",
+      "description": "Sistema de invitaciones"
+    },
+    {
+      "name": "Webhooks",
+      "description": "Integraciones a eventos externos"
+    }
   ],
   "paths": {
     "/": {
@@ -33,9 +57,44 @@
         "description": "Verifica si el servicio base está en línea.",
         "parameters": [],
         "responses": {
-          "200": { "description": "Servicio en línea" }
+          "200": {
+            "description": "Servicio en línea",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Arcade Master API"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "online"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2026-04-04T17:15:24.000Z"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "1.0.0"
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-        "tags": ["App"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "App"
+        ]
       }
     },
     "/auth/login": {
@@ -48,15 +107,70 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/LoginDto" }
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "Login exitoso. Devuelve el JWT." },
-          "401": { "description": "Credenciales inválidas" }
+          "200": {
+            "description": "Login exitoso. Devuelve el JWT.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string",
+                      "example": "YOUR_SECRET_TOKEN"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "number",
+                          "example": 1
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "test"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales inválidas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Credenciales inválidas"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/games": {
@@ -69,28 +183,52 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateGameDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateGameDto"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Juego creado exitosamente" },
-          "400": { "description": "Datos de entrada inválidos" },
-          "401": { "description": "No autorizado" }
+          "201": {
+            "description": "Juego creado exitosamente"
+          },
+          "400": {
+            "description": "Datos de entrada inválidos"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Games"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
       },
       "get": {
         "operationId": "GamesController_findAll",
         "summary": "Listar todos los juegos",
         "parameters": [],
         "responses": {
-          "200": { "description": "Lista de juegos obtenida correctamente" },
-          "401": { "description": "No autorizado" }
+          "200": {
+            "description": "Lista de juegos obtenida correctamente"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Games"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
       }
     },
     "/games/{id}": {
@@ -98,48 +236,101 @@
         "operationId": "GamesController_findOne",
         "summary": "Obtener un juego por ID",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Detalles del juego" },
-          "404": { "description": "Juego no encontrado" }
+          "200": {
+            "description": "Detalles del juego"
+          },
+          "404": {
+            "description": "Juego no encontrado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Games"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
       },
       "patch": {
         "operationId": "GamesController_update",
         "summary": "Actualizar un juego",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateGameDto" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGameDto"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "Juego actualizado exitosamente" },
-          "404": { "description": "Juego no encontrado" }
+          "200": {
+            "description": "Juego actualizado exitosamente"
+          },
+          "404": {
+            "description": "Juego no encontrado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Games"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
       },
       "delete": {
         "operationId": "GamesController_remove",
         "summary": "Eliminar un juego",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "204": { "description": "Juego eliminado" },
-          "404": { "description": "Juego no encontrado" }
+          "204": {
+            "description": "Juego eliminado"
+          },
+          "404": {
+            "description": "Juego no encontrado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Games"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
       }
     },
     "/games/{id}/image": {
@@ -147,13 +338,28 @@
         "operationId": "GamesController_uploadGameImage",
         "summary": "Subir imagen del juego",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "201": { "description": "Imagen subida exitosamente" }
+          "201": {
+            "description": "Imagen subida exitosamente"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Games"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
       }
     },
     "/sessions": {
@@ -166,25 +372,43 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateSessionDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionDto"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Sesión registrada" }
+          "201": {
+            "description": "Sesión registrada"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       },
       "get": {
         "operationId": "SessionsController_findAll",
         "summary": "Listar sesiones",
         "parameters": [],
         "responses": {
-          "200": { "description": "Historial de sesiones obtenido" }
+          "200": {
+            "description": "Historial de sesiones obtenido"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       }
     },
     "/sessions/{id}": {
@@ -192,45 +416,92 @@
         "operationId": "SessionsController_findOne",
         "summary": "Obtener detalles de sesión",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Detalles de la sesión" }
+          "200": {
+            "description": "Detalles de la sesión"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       },
       "patch": {
         "operationId": "SessionsController_update",
         "summary": "Actualizar sesión",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateSessionDto" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSessionDto"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "Sesión actualizada" }
+          "200": {
+            "description": "Sesión actualizada"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       },
       "delete": {
         "operationId": "SessionsController_remove",
         "summary": "Eliminar sesión",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Sesión eliminada" }
+          "200": {
+            "description": "Sesión eliminada"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       }
     },
     "/sessions/stats/most-played": {
@@ -239,10 +510,18 @@
         "summary": "Juegos más jugados",
         "parameters": [],
         "responses": {
-          "200": { "description": "Estadísticas obtenidas" }
+          "200": {
+            "description": "Estadísticas obtenidas"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       }
     },
     "/sessions/stats/controllers": {
@@ -251,10 +530,18 @@
         "summary": "Estadísticas de mandos",
         "parameters": [],
         "responses": {
-          "200": { "description": "Uso de hardware obtenido" }
+          "200": {
+            "description": "Uso de hardware obtenido"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       }
     },
     "/sessions/game/{gameId}/highscores": {
@@ -262,13 +549,28 @@
         "operationId": "SessionsController_getHighScores",
         "summary": "Tabla de clasificación",
         "parameters": [
-          { "name": "gameId", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "gameId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Highscores obtenidos" }
+          "200": {
+            "description": "Highscores obtenidos"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Sessions"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
       }
     },
     "/users": {
@@ -280,25 +582,152 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateUserDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Usuario creado" }
+          "201": {
+            "description": "Usuario creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "test@test.com"
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "ElManco"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "player"
+                    },
+                    "arcadeId": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Código de invitación expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Este código de invitación ya expiró o alcanzó su límite"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Correo o usuario en uso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Correo o nombre de usuario ya esta en uso"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Conflict"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 409
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Users"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
       },
       "get": {
         "operationId": "UsersController_findAll",
         "summary": "Listar usuarios",
         "parameters": [],
         "responses": {
-          "200": { "description": "Usuarios obtenidos" }
+          "200": {
+            "description": "Usuarios obtenidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "example": 1
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "test@test.com"
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "ElManco"
+                      },
+                      "role": {
+                        "type": "string",
+                        "example": "admin"
+                      },
+                      "arcadeId": {
+                        "type": "number",
+                        "example": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Users"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/users/register-owner": {
@@ -310,15 +739,78 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/RegisterOwnerDto" }
+              "schema": {
+                "$ref": "#/components/schemas/RegisterOwnerDto"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Propietario registrado exitosamente" }
+          "201": {
+            "description": "Propietario registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "test@test.com"
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "ElManco"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "admin"
+                    },
+                    "arcadeId": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Correo en uso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "El correo ya está registrado."
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Conflict"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 409
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Users"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/users/{id}": {
@@ -326,45 +818,156 @@
         "operationId": "UsersController_findOne",
         "summary": "Obtener usuario",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Detalles del usuario" }
+          "200": {
+            "description": "Detalles del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "example": 1
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "test@test.com"
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "ElManco"
+                      },
+                      "role": {
+                        "type": "string",
+                        "example": "admin"
+                      },
+                      "arcadeId": {
+                        "type": "number",
+                        "example": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Users"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
       },
       "patch": {
         "operationId": "UsersController_update",
         "summary": "Actualizar usuario",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateUserDto" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "Usuario actualizado" }
+          "200": {
+            "description": "Usuario actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "example": 1
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "test@test.com"
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "ElManco"
+                      },
+                      "role": {
+                        "type": "string",
+                        "example": "admin"
+                      },
+                      "arcadeId": {
+                        "type": "number",
+                        "example": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Users"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
       },
       "delete": {
         "operationId": "UsersController_remove",
         "summary": "Eliminar usuario",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Usuario eliminado" }
+          "200": {
+            "description": "Usuario eliminado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Users"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/arcades": {
@@ -376,15 +979,25 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateArcadeDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateArcadeDto"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Salón registrado" }
+          "201": {
+            "description": "Salón registrado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Arcades"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
       }
     },
     "/arcades/{name}": {
@@ -392,26 +1005,58 @@
         "operationId": "ArcadesController_findOne",
         "summary": "Obtener salón por nombre",
         "parameters": [
-          { "name": "name", "required": true, "in": "path", "schema": { "type": "string" } }
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Detalles del salón" },
-          "404": { "description": "Salón no encontrado" }
+          "200": {
+            "description": "Detalles del salón"
+          },
+          "404": {
+            "description": "Salón no encontrado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Arcades"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
       },
       "delete": {
         "operationId": "ArcadesController_remove",
         "summary": "Eliminar salón",
         "parameters": [
-          { "name": "name", "required": true, "in": "path", "schema": { "type": "string" } }
+          {
+            "name": "name",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Salón eliminado" }
+          "200": {
+            "description": "Salón eliminado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Arcades"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
       }
     },
     "/webhooks": {
@@ -423,25 +1068,43 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateWebhookDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateWebhookDto"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Webhook configurado" }
+          "201": {
+            "description": "Webhook configurado"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Webhooks"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Webhooks"
+        ]
       },
       "get": {
         "operationId": "WebhooksController_findAll",
         "summary": "Listar webhooks",
         "parameters": [],
         "responses": {
-          "200": { "description": "Webhooks obtenidos" }
+          "200": {
+            "description": "Webhooks obtenidos"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Webhooks"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Webhooks"
+        ]
       }
     },
     "/invitations": {
@@ -453,25 +1116,43 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateInvitationDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvitationDto"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Invitación generada" }
+          "201": {
+            "description": "Invitación generada"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Invitations"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Invitations"
+        ]
       },
       "get": {
         "operationId": "InvitationsController_find",
         "summary": "Listar invitaciones",
         "parameters": [],
         "responses": {
-          "200": { "description": "Invitaciones obtenidas" }
+          "200": {
+            "description": "Invitaciones obtenidas"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Invitations"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Invitations"
+        ]
       }
     },
     "/invitations/{id}": {
@@ -479,33 +1160,65 @@
         "operationId": "InvitationsController_update",
         "summary": "Actualizar invitación",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateInvitationDto" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvitationDto"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "Invitación modificada" }
+          "200": {
+            "description": "Invitación modificada"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Invitations"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Invitations"
+        ]
       },
       "delete": {
         "operationId": "InvitationsController_remove",
         "summary": "Revocar invitación",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "number" } }
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
         ],
         "responses": {
-          "200": { "description": "Invitación revocada" }
+          "200": {
+            "description": "Invitación revocada"
+          }
         },
-        "security": [{ "bearer": [] }],
-        "tags": ["Invitations"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Invitations"
+        ]
       }
     }
   },
@@ -538,14 +1251,27 @@
             "example": 2002
           }
         },
-        "required": ["title", "genre", "year"]
+        "required": [
+          "title",
+          "genre",
+          "year"
+        ]
       },
       "UpdateGameDto": {
         "type": "object",
         "properties": {
-          "title": { "type": "string", "example": "The King of Fighters 2002 Magic Plus" },
-          "genre": { "type": "string", "example": "Fighting" },
-          "year": { "type": "number", "example": 2002 }
+          "title": {
+            "type": "string",
+            "example": "The King of Fighters 2002 Magic Plus"
+          },
+          "genre": {
+            "type": "string",
+            "example": "Fighting"
+          },
+          "year": {
+            "type": "number",
+            "example": 2002
+          }
         }
       },
       "CreateSessionDto": {
@@ -567,75 +1293,161 @@
             "example": 1
           }
         },
-        "required": ["score", "controllerUsed", "gameId"]
+        "required": [
+          "score",
+          "controllerUsed",
+          "gameId"
+        ]
       },
       "UpdateSessionDto": {
         "type": "object",
         "properties": {
-          "score": { "type": "number", "example": 15000 },
-          "controllerUsed": { "type": "string", "example": "Custom Arcade Bluetooth/USB" }
+          "score": {
+            "type": "number",
+            "example": 15000
+          },
+          "controllerUsed": {
+            "type": "string",
+            "example": "Custom Arcade Bluetooth/USB"
+          }
         }
       },
       "CreateUserDto": {
         "type": "object",
         "properties": {
-          "email": { "type": "string", "example": "test@test.com" },
-          "username": { "type": "string", "example": "ElManco" },
-          "password": { "type": "string", "example": "p4ssw0rd!" },
-          "invitationCode": { "type": "string", "example": "INV123" }
+          "email": {
+            "type": "string",
+            "example": "test@test.com"
+          },
+          "username": {
+            "type": "string",
+            "example": "ElManco"
+          },
+          "password": {
+            "type": "string",
+            "example": "p4ssw0rd!"
+          },
+          "invitationCode": {
+            "type": "string",
+            "example": "INV123"
+          }
         },
-        "required": ["email", "username", "password", "invitationCode"]
+        "required": [
+          "email",
+          "username",
+          "password",
+          "invitationCode"
+        ]
       },
       "RegisterOwnerDto": {
         "type": "object",
         "properties": {
-          "email": { "type": "string", "example": "owner@arcademaster.com" },
-          "username": { "type": "string", "example": "AdminArcade" },
-          "password": { "type": "string", "example": "p4ssw0rd!" },
-          "arcadeName": { "type": "string", "example": "Retro Central" }
+          "email": {
+            "type": "string",
+            "example": "owner@arcademaster.com"
+          },
+          "username": {
+            "type": "string",
+            "example": "AdminArcade"
+          },
+          "password": {
+            "type": "string",
+            "example": "p4ssw0rd!"
+          },
+          "arcadeName": {
+            "type": "string",
+            "example": "Retro Central"
+          }
         },
-        "required": ["email", "username", "password", "arcadeName"]
+        "required": [
+          "email",
+          "username",
+          "password",
+          "arcadeName"
+        ]
       },
       "UpdateUserDto": {
         "type": "object",
         "properties": {
-          "email": { "type": "string", "example": "test@test.com" },
-          "username": { "type": "string", "example": "ElManco" },
-          "password": { "type": "string", "example": "p4ssw0rd!" }
+          "username": {
+            "type": "string",
+            "example": "ElManco"
+          }
         }
       },
       "LoginDto": {
         "type": "object",
         "properties": {
-          "email": { "type": "string", "example": "test@test.com" },
-          "password": { "type": "string", "example": "p4ssw0rd!" }
+          "email": {
+            "type": "string",
+            "example": "test@test.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "p4ssw0rd!"
+          }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "CreateArcadeDto": {
         "type": "object",
         "properties": {
-          "businessName": { "type": "string", "example": "Arcade Master" },
-          "subscriptionPlan": { "type": "string", "example": "premium" }
+          "businessName": {
+            "type": "string",
+            "example": "Arcade Master"
+          },
+          "subscriptionPlan": {
+            "type": "string",
+            "example": "premium"
+          }
         },
-        "required": ["businessName", "subscriptionPlan"]
+        "required": [
+          "businessName",
+          "subscriptionPlan"
+        ]
       },
       "CreateWebhookDto": {
         "type": "object",
         "properties": {
-          "url": { "type": "string", "example": "https://example.com/webhook" },
-          "isActive": { "type": "boolean", "example": true }
+          "url": {
+            "type": "string",
+            "example": "https://example.com/webhook"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
         },
-        "required": ["url", "isActive"]
+        "required": [
+          "url",
+          "isActive"
+        ]
       },
       "CreateInvitationDto": {
         "type": "object",
         "properties": {
-          "arcadeId": { "type": "number", "example": 1, "description": "ID del salón" },
-          "role": { "type": "string", "example": "player", "description": "Rol asignado" },
-          "expiresAt": { "type": "string", "format": "date-time" }
+          "arcadeId": {
+            "type": "number",
+            "example": 1,
+            "description": "ID del salón"
+          },
+          "role": {
+            "type": "string",
+            "example": "player",
+            "description": "Rol asignado"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
         },
-        "required": ["arcadeId", "role"]
+        "required": [
+          "arcadeId",
+          "role"
+        ]
       }
     }
   }
