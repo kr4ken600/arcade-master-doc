@@ -2016,7 +2016,7 @@
       "post": {
         "operationId": "WebhooksController_create",
         "summary": "💎 Crear webhook [Premium]",
-        "description": "> **Requiere Plan: Premium o superior**\n> Esta característica no está disponible en la versión Core.",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2110,7 +2110,8 @@
       },
       "get": {
         "operationId": "WebhooksController_findAll",
-        "summary": "Listar webhooks",
+        "summary": "💎 Listar webhooks [Premium]",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
         "parameters": [],
         "responses": {
           "200": {
@@ -2165,17 +2166,21 @@
         "tags": [
           "Webhooks"
         ]
-      },
+      }
+    },
+    "/webhooks/{id}": {
       "delete": {
         "operationId": "WebhooksController_remove",
-        "summary": "Eliminar un webhook",
+        "summary": "💎 Eliminar un webhook [Premium]",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "number",
+              "example": 1
             }
           }
         ],
