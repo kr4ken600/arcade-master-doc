@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Arcade Master API</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style> body { margin: 0; } </style>
-  </head>
-  <body>
-    <script
-      id="api-reference"
-      data-url="./openapi.json"
-      data-theme="bluePlanet"
-      data-hide-models="true"
-      data-hide-download-button="true" 
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-  </body>
+
+<head>
+  <title>Arcade Master API</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div id="api-reference"></div>
+
+  <script>
+    var scalarConfig = {
+      spec: {
+        url: './openapi.json',
+      },
+      hideModels: true,
+      hideDownloadButton: true,
+      hideDarkModeToggle: true,
+    };
+
+    var apiReferenceElement = document.getElementById('api-reference');
+    apiReferenceElement.dataset.configuration = JSON.stringify(scalarConfig);
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+
 </html>
