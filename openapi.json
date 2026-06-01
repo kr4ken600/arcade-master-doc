@@ -41,6 +41,10 @@
       "description": "Registro de partidas, scores y uso de hardware"
     },
     {
+      "name": "Controllers",
+      "description": "Gestión de controladores y mandos"
+    },
+    {
       "name": "Invitations",
       "description": "Sistema de invitaciones"
     },
@@ -87,11 +91,6 @@
             }
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
         "tags": [
           "App"
         ]
@@ -168,6 +167,72 @@
             }
           }
         },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/sync": {
+      "post": {
+        "operationId": "AuthController_syncUser",
+        "summary": "Sincronizar usuario",
+        "description": "Sincroniza los datos del usuario actual (avatar, perfil, etc.).",
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "avatar": {
+                    "type": "string",
+                    "description": "URL del avatar del usuario",
+                    "example": "https://example.com/avatar.jpg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario sincronizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "test@test.com"
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "ElManco"
+                    },
+                    "avatar": {
+                      "type": "string",
+                      "example": "https://example.com/avatar.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Auth"
         ]
@@ -342,6 +407,41 @@
                         "example": 1
                       }
                     }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
+      }
+    },
+    "/games/genres": {
+      "get": {
+        "operationId": "GamesController_getAllGenres",
+        "summary": "Obtener géneros disponibles",
+        "description": "Devuelve la lista de todos los géneros de juegos disponibles.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Lista de géneros obtenida correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "example": "Maze"
                   }
                 }
               }
@@ -1204,6 +1304,76 @@
         ]
       }
     },
+    "/sessions/me/highscores": {
+      "get": {
+        "operationId": "SessionsController_getHighScoresPersonal",
+        "summary": "Obtener récords personales",
+        "description": "Devuelve los mejores puntajes del usuario actual en cada juego.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Récords personales obtenidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "example": 1
+                      },
+                      "score": {
+                        "type": "number",
+                        "example": 500000
+                      },
+                      "controllerUsed": {
+                        "type": "string",
+                        "example": "ESP32 Custom Arcade Joystick"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-04-07T11:40:05.000Z"
+                      },
+                      "game": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "Pac-Man"
+                          },
+                          "genre": {
+                            "type": "string",
+                            "example": "Maze"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
     "/users": {
       "post": {
         "operationId": "UsersController_create",
@@ -1747,6 +1917,256 @@
         ]
       }
     },
+    "/users/me/points": {
+      "get": {
+        "operationId": "UsersController_getUserPoints",
+        "summary": "Obtener puntos del usuario",
+        "description": "Devuelve la cantidad de puntos acumulados del usuario actual.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Puntos obtenidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "totalPoints": {
+                      "type": "number",
+                      "example": 500000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/me/rank": {
+      "get": {
+        "operationId": "UsersController_getUserRank",
+        "summary": "Obtener rango del usuario",
+        "description": "Devuelve el rango actual del usuario en el ranking global.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Rango obtenido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "rank": {
+                      "type": "number",
+                      "example": 5
+                    },
+                    "totalPlayers": {
+                      "type": "number",
+                      "example": 150
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/me/upload-avatar": {
+      "post": {
+        "operationId": "UsersController_uploadAvatar",
+        "summary": "Subir avatar del usuario",
+        "description": "Carga una imagen de avatar para el usuario actual en Cloudinary.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "El archivo de imagen a subir (ej. avatar.jpg)"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Avatar subido exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "avatar": {
+                      "type": "string",
+                      "example": "https://res.cloudinary.com/example/image/upload/avatar.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Archivo no proporcionado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "¡Olvidaste adjuntar la imagen!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/update-arcade": {
+      "patch": {
+        "operationId": "UsersController_updateArcadeId",
+        "summary": "Actualizar arcade del usuario",
+        "description": "Actualiza el arcade asociado al usuario usando un código de invitación.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Arcade actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "ElManco"
+                    },
+                    "arcadeId": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Código de invitación inválido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/arcades": {
       "post": {
         "operationId": "ArcadesController_create",
@@ -2009,6 +2429,287 @@
         ],
         "tags": [
           "Arcades"
+        ]
+      }
+    },
+    "/controllers": {
+      "post": {
+        "operationId": "ControllersController_create",
+        "summary": "Crear controlador",
+        "description": "Registra un nuevo controlador/mando para el usuario.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateControllerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Controlador creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "ESP32 Custom Arcade Joystick"
+                    },
+                    "userId": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2026-04-07T11:40:05.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    },
+                    "message": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": [
+                          "name must be a string"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Controllers"
+        ]
+      },
+      "get": {
+        "operationId": "ControllersController_findAll",
+        "summary": "Listar controladores",
+        "description": "Obtiene todos los controladores registrados del usuario.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Controladores obtenidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "example": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "ESP32 Custom Arcade Joystick"
+                      },
+                      "userId": {
+                        "type": "number",
+                        "example": 1
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-04-07T11:40:05.000Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Controllers"
+        ]
+      }
+    },
+    "/controllers/{id}": {
+      "patch": {
+        "operationId": "ControllersController_update",
+        "summary": "Actualizar controlador",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateControllerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Controlador actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "ESP32 Custom Arcade Joystick v2"
+                    },
+                    "userId": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Controlador no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Not Found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Controlador no encontrado"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Controllers"
+        ]
+      },
+      "delete": {
+        "operationId": "ControllersController_remove",
+        "summary": "Eliminar controlador",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Controlador eliminado"
+          },
+          "404": {
+            "description": "Controlador no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Not Found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Controlador no encontrado"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Controllers"
         ]
       }
     },
@@ -2760,6 +3461,29 @@
             "type": "number",
             "example": 1,
             "description": "Total de usos de la invitación"
+          }
+        }
+      },
+      "CreateControllerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nombre del controlador",
+            "example": "ESP32 Custom Arcade Joystick"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateControllerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nuevo nombre del controlador",
+            "example": "ESP32 Custom Arcade Joystick v2"
           }
         }
       }
