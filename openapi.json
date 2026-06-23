@@ -2432,6 +2432,60 @@
         ]
       }
     },
+    "/arcades/invite": {
+      "post": {
+        "operationId": "ArcadesController_create",
+        "summary": "💎 Enviar la invitación para entrar al Arcade [Premium]",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendArcadeCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invitiación enviada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Código de invitación enviado"
+                    },
+                    "inviteCode": {
+                      "type": "string",
+                      "example": "ARCADE-ABC123"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
+      }
+    },
     "/controllers": {
       "post": {
         "operationId": "ControllersController_create",
@@ -3441,6 +3495,19 @@
           "businessName",
           "subscriptionPlan"
         ]
+      },
+      "SendArcadeCodeDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "test@test.com"
+          },
+          "code": {
+            "type": "string",
+            "example": "ARCADE-ABCDEF"
+          }
+        }
       },
       "CreateWebhookDto": {
         "type": "object",
