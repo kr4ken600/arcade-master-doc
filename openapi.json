@@ -51,6 +51,14 @@
     {
       "name": "Webhooks",
       "description": "Integraciones a eventos externos"
+    },
+    {
+      "name": "Stripe",
+      "description": "Integración con pasarela de pagos y suscripciones"
+    },
+    {
+      "name": "Fcm",
+      "description": "Gestión de notificaciones push (Firebase Cloud Messaging)"
     }
   ],
   "paths": {
@@ -2167,6 +2175,40 @@
         ]
       }
     },
+    "/users/me/device-id": {
+      "post": {
+        "operationId": "UsersController_getDeviceId",
+        "summary": "Registrar dispositivo para Push",
+        "description": "Registra el token FCM del dispositivo del usuario para poder enviarle notificaciones.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceIdDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Dispositivo registrado exitosamente"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/arcades": {
       "post": {
         "operationId": "ArcadesController_create",
@@ -2287,151 +2329,6 @@
         ]
       }
     },
-    "/arcades/{name}": {
-      "get": {
-        "operationId": "ArcadesController_findOne",
-        "summary": "Obtener salón por nombre",
-        "parameters": [
-          {
-            "name": "name",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Detalles del salón",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "number",
-                      "example": 1
-                    },
-                    "businessName": {
-                      "type": "string",
-                      "example": "TestArcade"
-                    },
-                    "isActive": {
-                      "type": "boolean",
-                      "example": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Salón inexistente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number",
-                      "example": 404
-                    },
-                    "error": {
-                      "type": "string",
-                      "example": "Not Found"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "¡Ese Arcade no existe!"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Arcades"
-        ]
-      },
-      "delete": {
-        "operationId": "ArcadesController_remove",
-        "summary": "Eliminar salón",
-        "parameters": [
-          {
-            "name": "name",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Salón eliminado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "businessName": {
-                      "type": "string",
-                      "example": "TestArcade"
-                    },
-                    "isActive": {
-                      "type": "boolean",
-                      "example": false
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "$ref": "#/components/responses/ForbiddenError"
-          },
-          "404": {
-            "description": "Salón inexistente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "number",
-                      "example": 404
-                    },
-                    "error": {
-                      "type": "string",
-                      "example": "Not Found"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "¡Ese Arcade no existe!"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Arcades"
-        ]
-      }
-    },
     "/arcades/invite": {
       "post": {
         "operationId": "ArcadesController_create",
@@ -2471,6 +2368,322 @@
           },
           "403": {
             "$ref": "#/components/responses/ForbiddenError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
+      }
+    },
+    "/arcades/{id}": {
+      "get": {
+        "operationId": "ArcadesController_findOneById",
+        "summary": "Obtener salón por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del salón obtenidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "businessName": {
+                      "type": "string",
+                      "example": "TestArcade"
+                    },
+                    "subscriptionPlan": {
+                      "type": "string",
+                      "example": "OFFLINE"
+                    },
+                    "subscriptionId": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "cloud_status": {
+                      "type": "string",
+                      "example": "NEVER_PAID"
+                    },
+                    "frozen_until": {
+                      "type": "string",
+                      "example": null
+                    },
+                    "isActive": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Salón no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Not Found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "¡Ese Arcade no existe!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
+      }
+    },
+    "/arcades/info": {
+      "get": {
+        "operationId": "ArcadesController_findArcadeInfo",
+        "summary": "Obtener información extendida del Arcade",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Información obtenida correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "businessName": {
+                      "type": "string",
+                      "example": "TestArcade"
+                    },
+                    "subscriptionPlan": {
+                      "type": "string",
+                      "example": "OFFLINE"
+                    },
+                    "subscriptionId": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "cloud_status": {
+                      "type": "string",
+                      "example": "NEVER_PAID"
+                    },
+                    "frozen_until": {
+                      "type": "string",
+                      "example": null
+                    },
+                    "isActive": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Salón no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Not Found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "¡Ese Arcade no existe!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
+      }
+    },
+    "/arcades/plan-active": {
+      "get": {
+        "operationId": "ArcadesController_getPlanActive",
+        "summary": "Verificar plan activo",
+        "description": "Devuelve el plan de suscripción actual del arcade asociado al usuario.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Plan consultado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "subscriptionPlan": {
+                      "type": "string",
+                      "example": "OFFLINE"
+                    },
+                    "cloud_status": {
+                      "type": "string",
+                      "example": "NEVER_PAID"
+                    },
+                    "frozen_until": {
+                      "type": "string",
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Arcades"
+        ]
+      }
+    },
+    "/arcades/update-plan": {
+      "patch": {
+        "operationId": "ArcadesController_updatePlan",
+        "summary": "Actualizar plan del Arcade",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Plan actualizado en la base de datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "businessName": {
+                      "type": "string",
+                      "example": "TestArcade"
+                    },
+                    "subscriptionPlan": {
+                      "type": "string",
+                      "example": "INSERT_COIN"
+                    },
+                    "subscriptionId": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "cloud_status": {
+                      "type": "string",
+                      "example": "NEVER_PAID"
+                    },
+                    "frozen_until": {
+                      "type": "string",
+                      "example": null
+                    },
+                    "isActive": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Salón no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Not Found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "¡Ese Arcade no existe!"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -3262,6 +3475,602 @@
           "Invitations"
         ]
       }
+    },
+    "/payments/intent": {
+      "post": {
+        "operationId": "StripeController_createIntent",
+        "summary": "Crear intención de pago (Payment Intent)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Intención de pago generada (Client Secret)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clientSecret": {
+                      "type": "string",
+                      "example": "pi_3U9TNGHCY8v2ZGJ31MLP0N8c_secret_yiqoLmTe5c1Gb1G41nGHClKwa"
+                    },
+                    "intentId": {
+                      "type": "string",
+                      "example": "pi_3U9TNGHCY8v2ZGJ31MLP0N8c"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/payments/subscribe": {
+      "post": {
+        "operationId": "StripeController_createSubscription",
+        "summary": "Contratar suscripción",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Suscripción creada en Stripe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "subscriptionId": {
+                      "type": "string",
+                      "example": "sub_1U9TWMHCY8v2ZGJ3aTumYQxj"
+                    },
+                    "clientSecret": {
+                      "type": "string",
+                      "example": "pi_3U9TWNHCY8v2ZGJ31kDA9Cpp_secret_9Jd6zzSAMY8A0KgV9aWIEqnwK"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "es el estado del pago (si se realiza directo desde servicio dara un incomplete)",
+                      "example": "incomplete"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/payments/products": {
+      "get": {
+        "operationId": "StripeController_getProducts",
+        "summary": "Listar planes (Productos Stripe)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Catálogo de planes y precios obtenido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/payments/products/{id}": {
+      "get": {
+        "operationId": "StripeController_getProduct",
+        "summary": "Obtener detalles de producto Stripe",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del producto extraídos del radar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "product": {
+                      "type": "object",
+                      "properties": {
+                        "info": {
+                          "type": "string",
+                          "example": "50 Máquinas (Juegos disponibles) registradas, Purga de sesiones mensualmente, Rango máximo alcanzable para tus usuarios: DIAMANTE, Logros activos para tus usuarios: Si, Envió de Correos: Si, Webhooks disponibles: Ilimitados, Soporte premium"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado en Stripe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "El producto no existe en los registros del banco central."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/payments/subscription-detail": {
+      "get": {
+        "operationId": "StripeController_subscriptionDetail",
+        "summary": "Monitor de Plan (Estado de Suscripción)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Detalles del contrato actual devueltos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/SubscriptionResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SubscriptionResponseNotPlan"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/payments/reactive-subscription": {
+      "get": {
+        "operationId": "StripeController_reactiveSubscription",
+        "summary": "Reactivar auto-renovación",
+        "description": "Cancela la orden de retiro programado y reactiva el ciclo normal.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Suscripción rescatada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Motores reactivados. Tu rango se renovará normalmente."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/payments/unsubscription": {
+      "delete": {
+        "operationId": "StripeController_deletedSubscription",
+        "summary": "Programar cancelación de suscripción",
+        "description": "Marca la suscripción para ser revocada al finalizar el periodo de facturación actual.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Cancelación programada correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Suscripción cancelada correctamente."
+                    },
+                    "subscriptionTime": {
+                      "type": "string",
+                      "example": "4/9/2026"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stripe"
+        ]
+      }
+    },
+    "/notifications/push-history": {
+      "get": {
+        "operationId": "FcmController_getPushHistory",
+        "summary": "💎 Bitácora de transmisiones (Historial) [Premium]",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Historial de mensajes push obtenido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationHistoryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe hisrotial de notificaciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No se encontraron notificiaciones"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Not Found"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Fcm"
+        ]
+      }
+    },
+    "/notifications/subscribe-topic": {
+      "post": {
+        "operationId": "FcmController_subscribeToTopic",
+        "summary": "💎 Suscribir dispositivo a un Topic [Premium]",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Dispositivo suscrito exitosamente al radar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "number": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Fcm"
+        ]
+      }
+    },
+    "/notifications/unsubscribe-topic": {
+      "post": {
+        "operationId": "FcmController_unsubscribeFromTopic",
+        "summary": "💎 Desuscribir dispositivo de un Topic [Premium]",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Dispositivo removido del canal de comunicaciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "successCount": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "failureCount": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "errors": {
+                      "type": "array",
+                      "example": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Fcm"
+        ]
+      }
+    },
+    "/notifications/send-global-notification": {
+      "post": {
+        "operationId": "FcmController_sendGlobalNotification",
+        "summary": "💎 Detonar Transmisión Global (Topic) [Premium]",
+        "description": "> **Requiere Plan: Premium** <br> _Esta característica no está disponible en la versión Core._",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ráfaga de notificaciones enviada con éxito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "messageId": {
+                      "type": "string",
+                      "example": "projects/arcade-master-414f4/messages/1055746583554466546"
+                    },
+                    "campaing": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Test Topic 2"
+                        },
+                        "body": {
+                          "type": "string",
+                          "example": "Este es un mensaje de prueba"
+                        },
+                        "targetTopic": {
+                          "type": "string",
+                          "example": "arcade_1_topic"
+                        },
+                        "customData": {
+                          "type": "object",
+                          "nullable": true,
+                          "additionalProperties": true,
+                          "example": null
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-07-31T16:15:17.703Z"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-08-28T18:02:24.000Z"
+                        },
+                        "count": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "body",
+                        "targetTopic",
+                        "customData",
+                        "createdAt",
+                        "updatedAt",
+                        "count"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "messageId",
+                    "campaing"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos para esta funcionalidad",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Actualiza tu plan para acceder a esta funcion"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Forbidden"
+                    },
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Fcm"
+        ]
+      }
     }
   },
   "components": {
@@ -3553,6 +4362,419 @@
             "example": "ESP32 Custom Arcade Joystick v2"
           }
         }
+      },
+      "DeviceIdDto": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string",
+            "description": "Token del dispositivo generado por FCM para notificaciones push",
+            "example": "eKxT1..._g8:APA91b..."
+          }
+        },
+        "required": [
+          "deviceId"
+        ]
+      },
+      "UpdatePlanDto": {
+        "type": "object",
+        "properties": {
+          "planName": {
+            "type": "string",
+            "description": "El nuevo plan de suscripción del arcade",
+            "example": "INSERT_COIN"
+          }
+        },
+        "required": [
+          "planName"
+        ]
+      },
+      "PaymentIntentDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Cantidad a cobrar (en MXN)",
+            "example": 500
+          },
+          "userId": {
+            "type": "string",
+            "description": "Identificador del usuario",
+            "example": "c585af62-8a4b-4e1c-9413-0aa35faa73fb"
+          }
+        },
+        "required": [
+          "amount",
+          "userId"
+        ]
+      },
+      "SubscribeDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "ID del usuario en la db",
+            "example": "c585af62-8a4b-4e1c-9413-0aa35faa73fb"
+          },
+          "email": {
+            "type": "string",
+            "description": "El correo del usuario",
+            "example": "admin@arcade.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nombre del usuario",
+            "example": "Admin Arcade"
+          },
+          "priceId": {
+            "type": "string",
+            "description": "El id del precio en Stripe",
+            "example": "price_1Tlut6HCY8v2ZGJ3kVsp8YpH"
+          }
+        },
+        "required": [
+          "userId",
+          "email",
+          "name",
+          "priceId"
+        ]
+      },
+      "PushNotificationDto": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "Topico global",
+            "example": "test_topic"
+          },
+          "title": {
+            "type": "string",
+            "description": "Título de la notificación",
+            "example": "¡Nuevo Torneo!"
+          },
+          "body": {
+            "type": "string",
+            "description": "Cuerpo del mensaje",
+            "example": "Participa este viernes en el torneo de KOF 2002."
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ]
+      },
+      "ProductsResponse": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          }
+        },
+        "required": [
+          "products"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "prod_UlP3308oLoC1DO"
+          },
+          "name": {
+            "type": "string",
+            "example": "Insert Coin"
+          },
+          "description": {
+            "type": "string"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "prices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Price"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "images",
+          "metadata",
+          "active",
+          "prices"
+        ]
+      },
+      "Price": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "unitAmount": {
+            "type": "integer",
+            "example": 5000
+          },
+          "currency": {
+            "type": "string",
+            "example": "mxn"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "recurring",
+              "one_time"
+            ]
+          },
+          "recurring": {
+            "$ref": "#/components/schemas/Recurring"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "unitAmount",
+          "currency",
+          "type",
+          "recurring",
+          "metadata",
+          "active"
+        ]
+      },
+      "Recurring": {
+        "type": "object",
+        "properties": {
+          "interval": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month",
+              "year"
+            ]
+          },
+          "interval_count": {
+            "type": "integer"
+          },
+          "meter": {
+            "type": "string"
+          },
+          "trial_period_days": {
+            "type": "integer"
+          },
+          "usage_type": {
+            "type": "string",
+            "example": "licensed"
+          }
+        },
+        "required": [
+          "interval",
+          "interval_count",
+          "meter",
+          "trial_period_days",
+          "usage_type"
+        ]
+      },
+      "SubscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "subscription": {
+            "$ref": "#/components/schemas/Subscription"
+          }
+        },
+        "required": [
+          "status",
+          "subscription"
+        ]
+      },
+      "Subscription": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "sub_1U0rQrHCY8v2ZGJ3nZgIGovB"
+          },
+          "status": {
+            "type": "string",
+            "example": "active"
+          },
+          "currentPeriodStart": {
+            "type": "string",
+            "example": "4/8/2026"
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "example": "4/9/2026"
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "cancelAt": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "currentPeriodStart",
+          "currentPeriodEnd",
+          "cancelAtPeriodEnd",
+          "cancelAt",
+          "items"
+        ]
+      },
+      "SubscriptionItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "si_V0tDlNFPRwpT0p"
+          },
+          "priceId": {
+            "type": "string",
+            "example": "price_1Tlut6HCY8v2ZGJ3kVsp8YpH"
+          },
+          "priceUnitAmount": {
+            "type": "integer",
+            "example": 10000
+          },
+          "productId": {
+            "type": "string",
+            "example": "prod_UlRmq2t7bi6efA"
+          },
+          "productName": {
+            "type": "string",
+            "example": "Press Start"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 1
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month",
+              "year"
+            ],
+            "example": "month"
+          }
+        },
+        "required": [
+          "id",
+          "priceId",
+          "priceUnitAmount",
+          "productId",
+          "productName",
+          "quantity",
+          "interval"
+        ]
+      },
+      "SubscriptionResponseNotPlan": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "no_subscription"
+          },
+          "message": {
+            "type": "string",
+            "example": "No hay suscripción activa para este arcade."
+          },
+          "plan": {
+            "type": "string",
+            "example": "OFFLINE"
+          }
+        }
+      },
+      "NotificationHistoryResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/NotificationHistory"
+        }
+      },
+      "NotificationHistory": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Test Topic"
+          },
+          "body": {
+            "type": "string",
+            "example": "Este es un mensaje de prueba"
+          },
+          "targetTopic": {
+            "type": "string",
+            "example": "arcade_1_topic"
+          },
+          "customData": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "example": null
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-31T16:10:12.843Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-31T16:12:44.000Z"
+          },
+          "count": {
+            "type": "integer",
+            "example": 4
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "targetTopic",
+          "customData",
+          "createdAt",
+          "updatedAt",
+          "count"
+        ]
       }
     }
   }
